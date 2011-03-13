@@ -7,3 +7,4 @@ doc/app
 *.swp
 *~
 .project
+webrat.log
