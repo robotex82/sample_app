@@ -15,6 +15,32 @@ describe "Users" do
           response.should have_selector("div#error_explanation")
         end.should_not change(User, :count)  
       end
+      
+      it "should not retain the password" do
+        lambda do
+          visit signup_path
+          fill_in "Name",                  :with => ""
+          fill_in "Email",                 :with => ""
+          fill_in "Password",              :with => "foobar"
+          fill_in "Password Confirmation", :with => "foobar"
+          click_button
+          response.should render_template('users/new')
+          response.should_not have_selector("input[name='user[password]'][value]")
+        end.should_not change(User, :count)  
+      end
+      
+      it "should not retain the password confirmation" do
+        lambda do
+          visit signup_path
+          fill_in "Name",                  :with => ""
+          fill_in "Email",                 :with => ""
+          fill_in "Password",              :with => "foobar"
+          fill_in "Password Confirmation", :with => "foobar"
+          click_button
+          response.should render_template('users/new')
+          response.should_not have_selector("input[name='user[password_confirmation]'][value]")
+        end.should_not change(User, :count)  
+      end
     end
     
     describe "success" do
