@@ -4,6 +4,18 @@ describe UsersController do
   render_views
 
   describe "GET 'new'" do
+    describe "as a signed-in user" do
+      before(:each) do
+        @user = Factory(:user)
+        test_sign_in(@user)
+      end
+
+      it "should redirect to the root path" do
+        get :new
+        response.should redirect_to(root_path)
+      end
+    end
+    
     it "should be successful" do
       get 'new'
       response.should be_success
@@ -70,6 +82,18 @@ describe UsersController do
   end
   
   describe "POST 'create'" do
+    describe "as a signed-in user" do
+      before(:each) do
+        @user = Factory(:user)
+        test_sign_in(@user)
+      end
+      
+      it "should redirect to the root path" do
+        post :create
+        response.should redirect_to(root_path)
+      end
+    end
+    
     describe "failure" do
       before(:each) do
         @attr = { :name => "", :email => "", :password => "", 
@@ -272,6 +296,34 @@ describe UsersController do
         response.should have_selector("a", :href => "/users?page=2",
                                            :content => "Next")                                            
       end
+      
+      it "should not show links to delete users" do
+        get :index
+        @users[0..2].each do |user|
+          response.should_not have_selector("a", :href => user_path(user),
+                                                 :content => "delete")        
+        end
+      end
+    end
+    
+    describe "as an admin user" do
+      before(:each) do
+        admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(admin)
+        
+        second = Factory(:user, :email => "another@example.com")
+        third  = Factory(:user, :email => "another@example.net")
+        
+        @users = [second, third]
+      end  
+      
+      it "should show links to delete users" do
+        get :index
+        @users.each do |user|
+          response.should have_selector("a", :href => user_path(user), 
+                                             :content => "delete")
+        end
+      end  
     end
   end
   
